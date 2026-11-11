@@ -141,6 +141,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--text); outl
 dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px 16px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 dt { color: var(--muted); font-size: 12px; }
 dd { margin: 0; font: 600 16px/1.3 var(--display); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.cap { margin: 0; font-size: 13px; font-weight: 600; color: var(--text); }
 .note { margin: 0; color: var(--muted); font-size: 13px; max-width: 65ch; }
 @media (prefers-reduced-motion: reduce) { .tier { transition: none; } }
 ${css}
@@ -150,10 +151,12 @@ ${css}
     <h1>[X~Y~Z]</h1>
     <p>Test sahnesi · TikTok'a bağlı değil</p>
   </header>
+  <p class="cap">İzleyicinin yayında gördüğü ekran — yalnızca bu kutu</p>
   <div id="stage">
 ${stage}
   </div>
   <section class="desk">
+    <p class="cap">Buradan aşağısı yalnızca test içindir, yayında görünmez</p>
     <h2>Hediye gönder</h2>
     <div id="d-tiers"></div>
     <div class="row">

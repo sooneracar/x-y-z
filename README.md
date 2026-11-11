@@ -63,7 +63,7 @@ Kendi değerleriniz için aynı yapıda bir `config/local.json` oluşturun; yaln
 ## Kurallar
 
 - **Dört sabit kademe**: 1–9, 10–99, 100–999 ve 1000+ jeton. Ekranda her kademe örnek bir hediyeyle gösterilir
-  (varsayılan: Rose, Doughnut, Confetti, Galaxy); aynı jeton aralığındaki diğer hediyeler de aynı etkiyi verir.
+  (varsayılan: Gül, Donut, Konfeti, Galaksi); aynı jeton aralığındaki diğer hediyeler de aynı etkiyi verir.
   En üst kademe, bar boş olsa bile yaratığı anında bir sonraki evreye atlatır.
 - **Tamamen deterministik**: aynı hediye her zaman aynı etkiyi verir. Kodda hiçbir şans unsuru yok; overlay'de
   `Math.random` bile kullanılmaz (ortam hareketi zamanın sabit bir fonksiyonudur).

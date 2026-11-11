@@ -8,7 +8,7 @@
       "points": 5,
       "manualCoins": 1,
       "showcase": {
-        "name": "Rose",
+        "name": "Gül",
         "icon": "rose"
       }
     },
@@ -20,7 +20,7 @@
       "points": 25,
       "manualCoins": 30,
       "showcase": {
-        "name": "Doughnut",
+        "name": "Donut",
         "icon": "doughnut"
       }
     },
@@ -32,7 +32,7 @@
       "points": 120,
       "manualCoins": 100,
       "showcase": {
-        "name": "Confetti",
+        "name": "Konfeti",
         "icon": "confetti"
       }
     },
@@ -45,7 +45,7 @@
       "manualCoins": 1000,
       "instantEvolve": true,
       "showcase": {
-        "name": "Galaxy",
+        "name": "Galaksi",
         "icon": "galaxy"
       }
     }
