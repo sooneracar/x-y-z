@@ -26,7 +26,9 @@ let finale = null; // { t0, key }
 
 // ---------- sound ----------
 const SOUNDS = ['idle', 'tier1', 'tier2', 'tier3', 'tier4', 'leaderboard', 'season'];
-const audio = Object.fromEntries(SOUNDS.map((n) => [n, Object.assign(new Audio(`sfx/${n}.wav`), { preload: 'auto' })]));
+// The phone demo page inlines the clips; everywhere else they are plain files.
+const sfxUrl = (n) => window.__xyzSfx?.[n] ?? `sfx/${n}.wav`;
+const audio = Object.fromEntries(SOUNDS.map((n) => [n, Object.assign(new Audio(sfxUrl(n)), { preload: 'auto' })]));
 function play(name, vol = 1, delay = 0) {
   if (MUTED) return;
   setTimeout(() => {
@@ -211,16 +213,20 @@ function connect() {
   ws.onclose = () => setTimeout(connect, 2000);
   ws.onerror = () => ws.close();
 }
-connect();
+// The demo page has no backend: it runs the engine in the browser and hands events over directly.
+if (window.__xyzDemo) window.__xyzDemo(onMessage);
+else connect();
 
 // ---------- render ----------
+// Canvases follow their CSS box, so the same code fills a 1920x1080 browser
+// source and a small embedded stage.
+const DPR = Math.min(2, window.devicePixelRatio || 1);
 function resize() {
   for (const c of [bg, mid]) {
-    c.width = innerWidth;
-    c.height = innerHeight;
+    c.width = Math.max(1, Math.round(c.clientWidth * DPR));
+    c.height = Math.max(1, Math.round(c.clientHeight * DPR));
   }
 }
-addEventListener('resize', resize);
 resize();
 
 const ease = (u) => 1 - (1 - u) ** 3;
@@ -261,6 +267,7 @@ function drawBurst(ctx, cx, cy, unit, e, u) {
 function frame() {
   requestAnimationFrame(frame);
   if (!state) return;
+  if (mid.width !== Math.max(1, Math.round(mid.clientWidth * DPR))) resize();
   const w = mid.width;
   const h = mid.height;
   // Wall-clock based, so reloading the source does not restart the same sequence.
