@@ -80,7 +80,10 @@ function renderBoard(top) {
 function renderState() {
   if (!state || !config) return;
   document.documentElement.style.setProperty('--accent', ACCENTS[state.season.key]);
-  $('creature-name').textContent = `${state.season.creature} · ${state.stageName}`;
+  $('title').textContent = state.season.creature;
+  // One short instruction, so a new viewer knows the aim at a glance.
+  $('goal').textContent = state.stage === 0 ? 'YUMURTAYI KIR!' : state.isFinalStage ? 'EFSANEYİ TAMAMLA!' : 'EJDERHAYI BÜYÜT!';
+  $('creature-name').textContent = state.stageName;
   $('bar-fill').style.width = `${(state.progress * 100).toFixed(1)}%`;
   $('growth-pct').textContent = state.isFinalStage
     ? `Final: ${fmt.format(state.seasonTotal)} / ${fmt.format(state.closeThreshold)}`

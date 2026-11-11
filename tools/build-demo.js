@@ -16,7 +16,8 @@ const css = read('overlay/overlay.css')
   .replace(/^html, body \{.*$/m, '')
   .replace(/^body \{ font-family/m, '#stage { font-family')
   .replace(/^canvas, #ui \{ position: fixed;/m, '#stage canvas, #stage #ui { position: absolute;')
-  .replace(/([\d.]+)rem/g, 'calc($1 * var(--u))');
+  .replace(/([\d.]+)rem/g, 'calc($1 * var(--u))')
+  .replace(/url\("fonts\/([^"]+)"\)/g, (_m, f) => `url("data:font/woff2;base64,${fs.readFileSync(path.join(ROOT, 'overlay/fonts', f)).toString('base64')}")`);
 
 const stage = read('overlay/index.html').match(/<body>([\s\S]*?)<script/)[1].trim();
 const sfx = Object.fromEntries(
