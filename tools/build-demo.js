@@ -30,7 +30,6 @@ const glue = `
 const __cfg = ${read('config/default.json')};
 window.__xyzSfx = ${JSON.stringify(sfx)};
 {
-  const SAMPLE = ['Rose', 'Doughnut', 'Confetti', 'Galaxy'];
   const CHAT = [['Elif', 'Çok tatlı bu ya'], ['Mert', 'Evrim geçirsin!'], ['Selin', 'Hadi bir hediye daha'], ['Baran', 'Efsane olmasına az kaldı'], ['Derya', 'Selam herkese']];
   const $ = (id) => document.getElementById(id);
   const fmt = new Intl.NumberFormat('tr-TR');
@@ -40,7 +39,7 @@ window.__xyzSfx = ${JSON.stringify(sfx)};
   let chatAt = 0;
   let count = 1;
   const pub = {
-    tiers: __cfg.tiers.map((t) => ({ id: t.id, label: t.label, minCoins: t.minCoins, maxCoins: t.maxCoins, points: t.points, instantEvolve: Boolean(t.instantEvolve) })),
+    tiers: __cfg.tiers.map((t) => ({ id: t.id, label: t.label, minCoins: t.minCoins, maxCoins: t.maxCoins, points: t.points, instantEvolve: Boolean(t.instantEvolve), showcase: t.showcase })),
     stages: __cfg.stages.map((s) => s.name),
   };
   const snap = () => ({ type: 'state', state: engine.snapshot() });
@@ -63,12 +62,12 @@ window.__xyzSfx = ${JSON.stringify(sfx)};
     b.className = 'tier';
     b.style.setProperty('--c', 'var(--t' + (i + 1) + ')');
     const name = document.createElement('strong');
-    name.textContent = t.label;
+    name.textContent = t.showcase.name;
     const fx = document.createElement('span');
     fx.textContent = (t.maxCoins == null ? fmt.format(t.minCoins) + '+' : t.minCoins + '–' + t.maxCoins) + ' jeton · ' + (t.instantEvolve ? 'anında evrim' : '+' + t.points + ' büyüme');
     b.append(name, fx);
     b.addEventListener('click', () => {
-      const r = engine.processGift({ id: 'demo:' + seq++, sender: $('d-sender').value, giftName: SAMPLE[i], coins: t.manualCoins, repeatCount: count, source: 'demo' });
+      const r = engine.processGift({ id: 'demo:' + seq++, sender: $('d-sender').value, giftName: t.showcase.name, coins: t.manualCoins, repeatCount: count, source: 'demo' });
       r.events.forEach(send);
       send(snap());
       summary();
@@ -186,6 +185,7 @@ ${stage}
 ${strip(read('backend/engine.js'))}
 ${strip(read('overlay/creature.js'))}
 ${strip(read('overlay/scene.js'))}
+${strip(read('overlay/icons.js'))}
 ${glue}
 ${strip(read('overlay/overlay.js'))}
 </script>

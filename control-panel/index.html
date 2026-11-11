@@ -92,9 +92,9 @@ function renderTiers() {
   $('tiers').replaceChildren(...config.tiers.map((t, i) => {
     const b = document.createElement('button');
     b.style.setProperty('--c', COLORS[i]);
-    b.append(t.label);
+    b.append(t.showcase.name);
     const small = document.createElement('small');
-    small.textContent = t.instantEvolve ? 'Anında evrim' : `+${t.points} büyüme`;
+    small.textContent = `${t.maxCoins == null ? t.minCoins + '+' : t.minCoins + '–' + t.maxCoins} jeton · ${t.instantEvolve ? 'anında evrim' : '+' + t.points + ' büyüme'}`;
     b.append(small);
     b.onclick = () => trigger(t, b);
     return b;
@@ -111,7 +111,7 @@ async function trigger(t, button) {
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok || !body.ok) throw new Error(body.error || `Sunucu ${res.status} döndürdü`);
-    note(`${t.label} tetiklendi.`, 'ok');
+    note(`${t.showcase.name} tetiklendi.`, 'ok');
   } catch (err) {
     note(`Tetiklenemedi: ${err.message}`, 'err');
   } finally {

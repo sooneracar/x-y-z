@@ -3,7 +3,7 @@
   font-size: min(0.8333vw, 1.4815vh);
   --accent: #ff8c28;
   --ink: #fff;
-  --glass: rgba(12, 14, 24, 0.62);
+  --glass: rgba(10, 12, 20, 0.5);
   --t1: #7fd3ff;
   --t2: #7dffb0;
   --t3: #c9a2ff;
@@ -13,56 +13,56 @@
 html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
 body { font-family: "Segoe UI", "Trebuchet MS", system-ui, sans-serif; color: var(--ink); }
 canvas, #ui { position: fixed; inset: 0; width: 100%; height: 100%; }
+[hidden] { display: none !important; }
 /* The scene fades to transparent toward the edges so the page stays a true overlay. */
 #bg { -webkit-mask-image: radial-gradient(ellipse 46% 58% at 50% 56%, #000 55%, transparent 100%); mask-image: radial-gradient(ellipse 46% 58% at 50% 56%, #000 55%, transparent 100%); }
 body.scene-full #bg { -webkit-mask-image: none; mask-image: none; }
 body.scene-off #bg { display: none; }
-#ui { pointer-events: none; text-shadow: 0 0.06rem 0.2rem rgba(0, 0, 0, 0.8); }
+#ui { pointer-events: none; text-shadow: 0 0.06rem 0.25rem rgba(0, 0, 0, 0.85); }
 
-.panel { position: absolute; background: var(--glass); border: 0.12rem solid color-mix(in srgb, var(--accent) 55%, transparent); border-radius: 1rem; padding: 0.9rem 1.1rem; }
-.panel h2 { font-size: 1rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.55rem; }
+.gift-icon { display: inline-block; width: 2.2rem; height: 2.2rem; flex: none; color: var(--c, var(--accent)); object-fit: contain; }
+.gift-icon svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 0.1rem 0.2rem rgba(0, 0, 0, 0.6)); }
 
-#logo { position: absolute; top: 1.5rem; left: 1.75rem; font-size: 1.9rem; font-weight: 800; letter-spacing: 0.06em; padding: 0.3rem 0.9rem; border-radius: 0.7rem; background: var(--glass); border: 0.12rem solid var(--accent); font-family: "Consolas", "Courier New", monospace; }
+#logo { position: absolute; top: 1.5rem; left: 1.75rem; font-size: 1.5rem; font-weight: 800; letter-spacing: 0.06em; opacity: 0.9; font-family: "Consolas", "Courier New", monospace; }
 
-#legend { left: 1.75rem; top: 50%; transform: translateY(-50%); width: 24rem; }
-#legend li { list-style: none; display: flex; align-items: center; gap: 0.6rem; font-size: 1.12rem; white-space: nowrap; padding: 0.32rem 0; }
-#legend .gem { width: 1.25rem; height: 1.25rem; flex: none; transform: rotate(45deg); border-radius: 0.2rem; background: var(--c); box-shadow: 0 0 0.6rem var(--c); }
-#legend b { color: var(--c); min-width: 5.2rem; }
-#legend .range { opacity: 0.8; font-size: 0.95rem; min-width: 5.6rem; }
-#legend .fx { margin-left: auto; font-weight: 600; }
+/* Gift legend: always visible, one line per gift — icon, name, effect. */
+#legend { position: absolute; left: 1.75rem; top: 50%; transform: translateY(-50%); padding: 0.5rem 1rem; border-radius: 1rem; background: var(--glass); }
+#legend li { list-style: none; display: flex; align-items: center; gap: 0.7rem; font-size: 1.3rem; font-weight: 600; white-space: nowrap; padding: 0.4rem 0; }
+#legend .name { min-width: 7rem; }
+#legend .fx { margin-left: auto; padding-left: 1rem; color: var(--c); font-weight: 800; font-variant-numeric: tabular-nums; }
 
-#board { right: 1.75rem; top: 1.5rem; width: 21rem; transition: box-shadow 0.3s, transform 0.3s; }
+#board { position: absolute; right: 1.75rem; top: 1.5rem; width: 18rem; padding: 0.7rem 1rem; border-radius: 1rem; background: var(--glass); transition: box-shadow 0.3s, transform 0.3s; }
 #board.flash { box-shadow: 0 0 2rem var(--accent); transform: scale(1.05); }
-#board li { list-style: none; display: flex; gap: 0.6rem; align-items: baseline; font-size: 1.2rem; padding: 0.28rem 0; }
-#board .rank { width: 1.7rem; height: 1.7rem; flex: none; display: grid; place-items: center; border-radius: 50%; font-weight: 800; font-size: 1rem; color: #1a1205; background: var(--t4); text-shadow: none; }
+#board h2 { font-size: 0.9rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.3rem; }
+#board li { list-style: none; display: flex; gap: 0.6rem; align-items: baseline; font-size: 1.2rem; padding: 0.22rem 0; }
+#board .rank { width: 1.6rem; height: 1.6rem; flex: none; display: grid; place-items: center; border-radius: 50%; font-weight: 800; font-size: 0.95rem; color: #1a1205; background: var(--t4); text-shadow: none; }
 #board li:nth-child(2) .rank { background: #d5dbe6; }
 #board li:nth-child(3) .rank { background: #d99a66; }
 #board .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 #board .coins { font-variant-numeric: tabular-nums; color: var(--t4); }
-#board .empty { opacity: 0.65; font-size: 1.05rem; }
 
-#toast { position: absolute; top: 7.5rem; left: 50%; transform: translate(-50%, -1.5rem) scale(0.9); opacity: 0; transition: opacity 0.25s, transform 0.25s; text-align: center; padding: 0.9rem 2.6rem 1rem; border-radius: 1.4rem; background: var(--glass); border: 0.2rem solid var(--c, var(--accent)); box-shadow: 0 0 2.4rem color-mix(in srgb, var(--c, var(--accent)) 60%, transparent); max-width: 60rem; }
+#toast { position: absolute; top: 5rem; left: 50%; transform: translate(-50%, -1.5rem) scale(0.9); opacity: 0; transition: opacity 0.25s, transform 0.25s; display: flex; align-items: center; gap: 1.2rem; padding: 0.8rem 2.2rem 0.9rem 1.6rem; border-radius: 1.4rem; background: rgba(10, 12, 20, 0.72); border: 0.18rem solid var(--c, var(--accent)); box-shadow: 0 0 2.4rem color-mix(in srgb, var(--c, var(--accent)) 55%, transparent); max-width: 56rem; }
 #toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
-#toast .who { font-size: 3.1rem; font-weight: 800; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#toast .what { font-size: 1.7rem; color: var(--c, var(--accent)); font-weight: 700; }
+#toast .gift-icon { width: 5rem; height: 5rem; }
+#toast .text { min-width: 0; }
+#toast .who { font-size: 2.9rem; font-weight: 800; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#toast .what { font-size: 1.6rem; color: var(--c, var(--accent)); font-weight: 700; }
 
-#growth { left: 50%; bottom: 5.4rem; transform: translateX(-50%); width: 50rem; }
-#growth .meta { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700; }
-#growth .meta.small { font-size: 1rem; font-weight: 500; opacity: 0.9; }
+#growth { position: absolute; left: 50%; bottom: 1.6rem; transform: translateX(-50%); width: 44rem; }
+#growth .meta { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.35rem; font-weight: 700; }
 #creature-name { color: var(--accent); }
-#growth .bar { position: relative; height: 1.5rem; margin: 0.5rem 0 0.4rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.14); overflow: hidden; }
-#bar-fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 0.75rem; background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 60%, #000), var(--accent), #fff8); transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
-#stage-dots { position: absolute; inset: 0; display: flex; justify-content: flex-end; align-items: center; gap: 0.35rem; padding-right: 0.5rem; }
-#stage-dots span { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: rgba(255, 255, 255, 0.3); }
-#stage-dots span.on { background: #fff; }
+#growth-pct { font-variant-numeric: tabular-nums; }
+#growth .bar { position: relative; height: 1.1rem; margin-top: 0.4rem; border-radius: 0.55rem; background: rgba(10, 12, 20, 0.55); overflow: hidden; }
+#bar-fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 0.55rem; background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 60%, #000), var(--accent)); transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
-#chat { position: absolute; left: 1.75rem; right: 1.75rem; bottom: 1.3rem; height: 3rem; display: flex; gap: 0.7rem; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
-#chat .msg { flex: none; max-width: 30rem; font-size: 1.15rem; padding: 0.55rem 1rem; border-radius: 1.5rem; background: var(--glass); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: slide 0.35s ease-out; }
+/* Comment feed: the last three comments, bottom right, fading out on their own. */
+#chat { position: absolute; right: 1.75rem; bottom: 1.6rem; width: 22rem; display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem; }
+#chat .msg { max-width: 100%; font-size: 1.05rem; padding: 0.35rem 0.8rem; border-radius: 0.9rem; background: var(--glass); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: slide 0.35s ease-out; }
 #chat .msg b { color: var(--accent); margin-right: 0.45rem; }
 #chat .msg.out { opacity: 0; transition: opacity 0.6s; }
-@keyframes slide { from { transform: translateX(-2rem); opacity: 0; } }
+@keyframes slide { from { transform: translateY(0.8rem); opacity: 0; } }
 
-#finale { position: absolute; left: 50%; top: 15.5rem; transform: translate(-50%, 0) scale(0.8); opacity: 0; transition: opacity 0.6s, transform 0.6s; text-align: center; padding: 1.6rem 3.5rem; border-radius: 1.6rem; background: rgba(8, 8, 16, 0.82); border: 0.22rem solid var(--t4); box-shadow: 0 0 4rem rgba(255, 210, 74, 0.5); min-width: 40rem; }
+#finale { position: absolute; left: 50%; top: 13rem; transform: translate(-50%, 0) scale(0.8); opacity: 0; transition: opacity 0.6s, transform 0.6s; text-align: center; padding: 1.6rem 3.5rem; border-radius: 1.6rem; background: rgba(8, 8, 16, 0.82); border: 0.22rem solid var(--t4); box-shadow: 0 0 4rem rgba(255, 210, 74, 0.5); min-width: 40rem; }
 #finale.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
 #finale h1 { font-size: 2.6rem; color: var(--t4); letter-spacing: 0.08em; }
 #finale h3 { font-size: 1.5rem; font-weight: 600; margin: 0.3rem 0 0.9rem; }

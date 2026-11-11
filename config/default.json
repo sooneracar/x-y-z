@@ -1,16 +1,76 @@
 {
   "tiers": [
-    { "id": "ucuz",     "label": "Ucuz",     "minCoins": 1,    "maxCoins": 9,    "points": 5,   "manualCoins": 1 },
-    { "id": "orta",     "label": "Orta",     "minCoins": 10,   "maxCoins": 99,   "points": 25,  "manualCoins": 10 },
-    { "id": "nadir",    "label": "Nadir",    "minCoins": 100,  "maxCoins": 999,  "points": 120, "manualCoins": 100 },
-    { "id": "efsanevi", "label": "Efsanevi", "minCoins": 1000, "maxCoins": null, "points": 0,   "manualCoins": 1000, "instantEvolve": true }
+    {
+      "id": "ucuz",
+      "label": "Ucuz",
+      "minCoins": 1,
+      "maxCoins": 9,
+      "points": 5,
+      "manualCoins": 1,
+      "showcase": {
+        "name": "Rose",
+        "icon": "rose"
+      }
+    },
+    {
+      "id": "orta",
+      "label": "Orta",
+      "minCoins": 10,
+      "maxCoins": 99,
+      "points": 25,
+      "manualCoins": 30,
+      "showcase": {
+        "name": "Doughnut",
+        "icon": "doughnut"
+      }
+    },
+    {
+      "id": "nadir",
+      "label": "Nadir",
+      "minCoins": 100,
+      "maxCoins": 999,
+      "points": 120,
+      "manualCoins": 100,
+      "showcase": {
+        "name": "Confetti",
+        "icon": "confetti"
+      }
+    },
+    {
+      "id": "efsanevi",
+      "label": "Efsanevi",
+      "minCoins": 1000,
+      "maxCoins": null,
+      "points": 0,
+      "manualCoins": 1000,
+      "instantEvolve": true,
+      "showcase": {
+        "name": "Galaxy",
+        "icon": "galaxy"
+      }
+    }
   ],
   "stages": [
-    { "name": "Yumurta",  "threshold": 100 },
-    { "name": "Yavru",    "threshold": 250 },
-    { "name": "Genç",     "threshold": 500 },
-    { "name": "Yetişkin", "threshold": 900 },
-    { "name": "Efsane",   "final": true }
+    {
+      "name": "Yumurta",
+      "threshold": 100
+    },
+    {
+      "name": "Yavru",
+      "threshold": 250
+    },
+    {
+      "name": "Genç",
+      "threshold": 500
+    },
+    {
+      "name": "Yetişkin",
+      "threshold": 900
+    },
+    {
+      "name": "Efsane",
+      "final": true
+    }
   ],
   "decay": {
     "graceSeconds": 120,

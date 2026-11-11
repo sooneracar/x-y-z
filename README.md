@@ -50,6 +50,7 @@ Kendi değerleriniz için aynı yapıda bir `config/local.json` oluşturun; yaln
 | Alan | Anlamı |
 | --- | --- |
 | `tiers[].minCoins / maxCoins` | Kademenin jeton aralığı (hediyenin **birim** değeri). Aralıklar bitişik olmalı, sonuncusu açık uçlu. |
+| `tiers[].showcase` | Ekranda o kademe için gösterilen hediye: `name` (ad) ve `icon` (`rose`, `doughnut`, `confetti`, `galaxy` ya da `overlay/` altına koyduğunuz bir resmin yolu, örn. `gifts/rose.png`). İzleyici kademe adını değil bu hediyeyi görür. |
 | `tiers[].points` | O kademenin büyüme puanı. Combo'da tekrar sayısıyla çarpılır. |
 | `tiers[].manualCoins` | Manuel tetiklemede lider tablosuna ve sezon toplamına yazılan jeton. |
 | `stages[].threshold` | O evreden bir sonrakine geçmek için gereken puan. |
@@ -61,8 +62,9 @@ Kendi değerleriniz için aynı yapıda bir `config/local.json` oluşturun; yaln
 
 ## Kurallar
 
-- **Dört sabit kademe**: Ucuz (1–9), Orta (10–99), Nadir (100–999), Efsanevi (1000+). Efsanevi, bar boş olsa
-  bile yaratığı anında bir sonraki evreye atlatır.
+- **Dört sabit kademe**: 1–9, 10–99, 100–999 ve 1000+ jeton. Ekranda her kademe örnek bir hediyeyle gösterilir
+  (varsayılan: Rose, Doughnut, Confetti, Galaxy); aynı jeton aralığındaki diğer hediyeler de aynı etkiyi verir.
+  En üst kademe, bar boş olsa bile yaratığı anında bir sonraki evreye atlatır.
 - **Tamamen deterministik**: aynı hediye her zaman aynı etkiyi verir. Kodda hiçbir şans unsuru yok; overlay'de
   `Math.random` bile kullanılmaz (ortam hareketi zamanın sabit bir fonksiyonudur).
 - **Gerileme**: bar, son hediyeden beri geçen gerçek süreye göre azalır. Zaman damgasından hesaplandığı için

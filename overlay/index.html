@@ -15,28 +15,21 @@
 <div id="ui">
   <div id="logo">[X~Y~Z]</div>
 
-  <aside id="legend" class="panel">
-    <h2>Hediye Etkileri</h2>
-    <ul id="legend-list"></ul>
-  </aside>
+  <aside id="legend"><ul id="legend-list"></ul></aside>
 
-  <aside id="board" class="panel">
-    <h2>Sezon Liderleri</h2>
+  <aside id="board" hidden>
+    <h2>Liderler</h2>
     <ol id="board-list"></ol>
   </aside>
 
   <div id="toast" aria-live="off"></div>
 
-  <div id="growth" class="panel">
+  <div id="growth">
     <div class="meta">
       <span id="creature-name"></span>
-      <span id="stage-name"></span>
-    </div>
-    <div class="bar"><i id="bar-fill"></i><div id="stage-dots"></div></div>
-    <div class="meta small">
-      <span id="growth-label"></span>
       <span id="growth-pct"></span>
     </div>
+    <div class="bar"><i id="bar-fill"></i></div>
   </div>
 
   <div id="chat"></div>

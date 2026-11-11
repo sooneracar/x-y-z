@@ -26,13 +26,15 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
 
 const publicConfig = {
-  tiers: config.tiers.map(({ id, label, minCoins, maxCoins, points, instantEvolve }) => ({
+  tiers: config.tiers.map(({ id, label, minCoins, maxCoins, points, instantEvolve, showcase }) => ({
     id,
     label,
     minCoins,
     maxCoins,
     points,
     instantEvolve: Boolean(instantEvolve),
+    // The gift viewers see on screen for this tier (name + icon).
+    showcase: { name: showcase?.name || label, icon: showcase?.icon || '' },
   })),
   stages: config.stages.map((s) => s.name),
 };
@@ -117,7 +119,7 @@ app.post('/manual-trigger', requireToken, (req, res) => {
   const result = handleGift({
     id: `manual:${crypto.randomUUID()}`,
     sender: typeof sender === 'string' ? sender : '',
-    giftName: `${t.label} (manuel)`,
+    giftName: t.showcase?.name || t.label,
     coins: t.manualCoins ?? t.minCoins,
     repeatCount: 1,
     source: 'manual',

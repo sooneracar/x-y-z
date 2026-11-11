@@ -1,5 +1,6 @@
 import { drawCreature, PALETTES, TAU, hsl } from './creature.js';
 import { drawScene, GROUND } from './scene.js';
+import { giftIcon } from './icons.js';
 
 // Deliberately absent: camera/webcam capture, speech synthesis, and any
 // random outcome. Every effect below is a fixed function of the event.
@@ -46,15 +47,13 @@ startIdle();
 addEventListener('pointerdown', startIdle, { once: true }); // browsers outside OBS block autoplay until a gesture
 
 // ---------- UI ----------
+// The legend shows real gifts, not internal tier names: icon, gift name, effect.
 function renderLegend() {
-  const ul = $('legend-list');
-  ul.replaceChildren(
+  $('legend-list').replaceChildren(
     ...config.tiers.map((t, i) => {
       const li = document.createElement('li');
       li.style.setProperty('--c', TIER_COLORS[i]);
-      const range = t.maxCoins == null ? `${fmt.format(t.minCoins)}+ jeton` : `${t.minCoins}–${t.maxCoins} jeton`;
-      const fx = t.instantEvolve ? 'Anında evrim!' : `+${t.points} büyüme`;
-      li.append(el('span', 'gem'), el('b', '', t.label), el('span', 'range', range), el('span', 'fx', fx));
+      li.append(giftIcon(t.showcase.icon), el('span', 'name', t.showcase.name), el('b', 'fx', t.instantEvolve ? 'EVRİM' : `+${t.points}`));
       return li;
     }),
   );
@@ -68,9 +67,8 @@ function el(tag, cls, text) {
 }
 
 function renderBoard(top) {
-  const ol = $('board-list');
-  if (!top.length) return ol.replaceChildren(el('li', 'empty', 'İlk destekçi sen ol!'));
-  ol.replaceChildren(
+  $('board').hidden = top.length === 0;
+  $('board-list').replaceChildren(
     ...top.map((e, i) => {
       const li = el('li');
       li.append(el('span', 'rank', String(i + 1)), el('span', 'name', e.name), el('span', 'coins', fmt.format(e.coins)));
@@ -82,22 +80,19 @@ function renderBoard(top) {
 function renderState() {
   if (!state || !config) return;
   document.documentElement.style.setProperty('--accent', ACCENTS[state.season.key]);
-  $('creature-name').textContent = `${state.season.creature} · ${state.season.element}`;
-  $('stage-name').textContent = `${state.stageName} · Evre ${state.stage + 1}/${state.stageCount}`;
+  $('creature-name').textContent = `${state.season.creature} · ${state.stageName}`;
   $('bar-fill').style.width = `${(state.progress * 100).toFixed(1)}%`;
-  $('growth-pct').textContent = `%${Math.floor(state.progress * 100)}`;
-  $('growth-label').textContent = state.isFinalStage
-    ? `Sezon finali: ${fmt.format(state.seasonTotal)} / ${fmt.format(state.closeThreshold)} jeton`
-    : `Sonraki evre: ${config.stages[state.stage + 1]}`;
-  $('stage-dots').replaceChildren(...config.stages.map((_, i) => el('span', i <= state.stage ? 'on' : '')));
+  $('growth-pct').textContent = state.isFinalStage
+    ? `Final: ${fmt.format(state.seasonTotal)} / ${fmt.format(state.closeThreshold)}`
+    : `%${Math.floor(state.progress * 100)}`;
   renderBoard(state.top);
 }
 
 // Gift notifications are queued so each one stays readable.
 const toastQueue = [];
 let toastBusy = false;
-function toast(who, what, color) {
-  toastQueue.push({ who, what, color });
+function toast(who, what, color, icon) {
+  toastQueue.push({ who, what, color, icon });
   if (!toastBusy) nextToast();
 }
 function nextToast() {
@@ -109,7 +104,9 @@ function nextToast() {
   }
   toastBusy = true;
   box.style.setProperty('--c', item.color);
-  box.replaceChildren(el('div', 'who', item.who), el('div', 'what', item.what));
+  const text = el('div', 'text');
+  text.append(el('div', 'who', item.who), el('div', 'what', item.what));
+  box.replaceChildren(...(item.icon != null ? [giftIcon(item.icon)] : []), text);
   box.classList.add('show');
   const hold = toastQueue.length > 2 ? 1400 : 2700;
   setTimeout(() => {
@@ -122,12 +119,12 @@ function addChat(sender, text) {
   const box = $('chat');
   const m = el('div', 'msg');
   m.append(el('b', '', sender), document.createTextNode(text));
-  box.prepend(m);
-  while (box.children.length > 7) box.lastChild.remove();
+  box.append(m);
+  while (box.children.length > 3) box.firstChild.remove();
   setTimeout(() => {
     m.classList.add('out');
     setTimeout(() => m.remove(), 700);
-  }, 14000);
+  }, 9000);
 }
 
 function showFinale(ev) {
@@ -170,7 +167,7 @@ function onMessage(msg) {
       effects.push({ ...GIFT_FX[i], tier: i, t0: now() });
       play(`tier${msg.tier}`);
       const count = msg.repeatCount > 1 ? ` ×${msg.repeatCount}` : '';
-      toast(msg.sender, `${msg.giftName}${count} · ${msg.tierLabel}`, TIER_COLORS[i]);
+      toast(msg.sender, `${msg.giftName}${count}`, TIER_COLORS[i], config.tiers[i].showcase.icon);
       break;
     }
     case 'stage_up':
