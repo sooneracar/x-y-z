@@ -1,6 +1,5 @@
 // Small original gift icons, drawn here so the overlay needs no image files.
-// A tier's `showcase.icon` in the config is one of these keys, or a path/URL
-// to your own image (e.g. "gifts/rose.png" placed under overlay/).
+// They are the fallback for when TikTok's own gift icons cannot be loaded.
 
 const SVG = {
   rose: `<path d="M16 18v11" stroke="#2f9e57" stroke-width="2.4" stroke-linecap="round"/><path d="M16 24c-4 0-6-2-7-5 4 0 6 1 7 5z" fill="#3fbf6c"/><circle cx="16" cy="11" r="8.5" fill="#e8344e"/><path d="M16 4.5c4 1 6 4 5.5 8-1 3.5-5 4.5-7.5 2.5-2-1.8-1.5-5 1-5.5 1.8-.3 3 1 2.5 2.5" fill="none" stroke="#ff9bab" stroke-width="1.8" stroke-linecap="round"/>`,
@@ -10,17 +9,27 @@ const SVG = {
 };
 const GEM = `<path d="M16 3l11 13-11 13L5 16z" fill="currentColor"/><path d="M16 3l4 13-4 13-4-13z" fill="#fff" opacity=".35"/>`;
 
-/** Returns an element for a gift icon key or image path. Unknown keys get a tier-coloured gem. */
-export function giftIcon(icon) {
-  if (typeof icon === 'string' && /[./]/.test(icon)) {
+function drawn(key) {
+  const span = document.createElement('span');
+  span.className = 'gift-icon';
+  span.innerHTML = `<svg viewBox="0 0 32 32" aria-hidden="true">${SVG[key] || GEM}</svg>`;
+  return span;
+}
+
+/**
+ * Returns an element for a gift icon: an image address (TikTok's own icon,
+ * or your file) or one of the built-in keys. If an image fails to load, the
+ * drawn fallback takes its place, so the legend is never blank.
+ */
+export function giftIcon(icon, fallback) {
+  if (typeof icon === 'string' && /[./:]/.test(icon)) {
     const img = document.createElement('img');
     img.className = 'gift-icon';
     img.alt = '';
+    img.referrerPolicy = 'no-referrer';
+    img.onerror = () => img.replaceWith(drawn(fallback));
     img.src = icon;
     return img;
   }
-  const span = document.createElement('span');
-  span.className = 'gift-icon';
-  span.innerHTML = `<svg viewBox="0 0 32 32" aria-hidden="true">${SVG[icon] || GEM}</svg>`;
-  return span;
+  return drawn(icon);
 }

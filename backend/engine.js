@@ -89,7 +89,7 @@ export class Engine {
    * Applies one (already combo-merged) gift.
    * @returns {{accepted: boolean, reason?: string, events: object[]}}
    */
-  processGift({ id, sender, giftName, coins, repeatCount = 1, source = 'tiktok' }) {
+  processGift({ id, sender, giftName, icon = '', coins, repeatCount = 1, source = 'tiktok' }) {
     const s = this.state;
     if (id != null) {
       if (this.seen.has(id)) return { accepted: false, reason: 'duplicate', events: [] };
@@ -126,6 +126,7 @@ export class Engine {
       tierLabel: tier.label,
       sender: name,
       giftName: giftName || tier.label,
+      icon,
       coins: unit,
       repeatCount: count,
       totalCoins,

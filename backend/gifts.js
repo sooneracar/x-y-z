@@ -19,6 +19,7 @@ export function normalizeGift(d) {
     createTime: common.createTime != null ? String(common.createTime) : '',
     giftId: String(d.giftId ?? g.id ?? ''),
     giftName: g.name || g.giftName || d.giftName || 'Hediye',
+    icon: g.image?.urlList?.[0] || g.icon?.urlList?.[0] || g.image?.url_list?.[0] || '',
     coins,
     repeatCount: Math.max(1, Number(d.repeatCount) || 1),
     repeatEnd: Boolean(Number(d.repeatEnd)),
@@ -52,7 +53,7 @@ export class StreakAggregator {
         : n.createTime
           ? `gift:${n.userId}:${n.giftId}:${n.createTime}:${n.repeatCount}`
           : `local:${Date.now()}:${this.counter++}`;
-      this.emit({ id, sender: n.sender, giftName: n.giftName, coins: n.coins, repeatCount: n.repeatCount });
+      this.emit({ id, sender: n.sender, giftName: n.giftName, giftId: n.giftId, icon: n.icon, coins: n.coins, repeatCount: n.repeatCount });
       return;
     }
     const key = `${n.userId}:${n.giftId}:${n.groupId || n.msgId || ''}`;
@@ -73,7 +74,7 @@ export class StreakAggregator {
     clearTimeout(entry.timer);
     this.pending.delete(key);
     const { n } = entry;
-    this.emit({ id: `streak:${key}`, sender: n.sender, giftName: n.giftName, coins: n.coins, repeatCount: n.repeatCount });
+    this.emit({ id: `streak:${key}`, sender: n.sender, giftName: n.giftName, giftId: n.giftId, icon: n.icon, coins: n.coins, repeatCount: n.repeatCount });
   }
 
   flushAll() {

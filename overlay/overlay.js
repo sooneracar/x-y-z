@@ -47,13 +47,13 @@ startIdle();
 addEventListener('pointerdown', startIdle, { once: true }); // browsers outside OBS block autoplay until a gesture
 
 // ---------- UI ----------
-// The legend shows real gifts, not internal tier names: icon, gift name, effect.
+// The legend is wordless: the gift's own icon and what it does.
 function renderLegend() {
   $('legend-list').replaceChildren(
     ...config.tiers.map((t, i) => {
       const li = document.createElement('li');
       li.style.setProperty('--c', TIER_COLORS[i]);
-      li.append(giftIcon(t.showcase.icon), el('span', 'name', t.showcase.name), el('b', 'fx', t.instantEvolve ? 'EVRİM' : `+${t.points}`));
+      li.append(giftIcon(t.showcase.icon, config.tiers[i].showcase.fallback), el('b', 'fx', t.instantEvolve ? 'EVRİM' : `+${t.points}`));
       return li;
     }),
   );
@@ -91,8 +91,8 @@ function renderState() {
 // Gift notifications are queued so each one stays readable.
 const toastQueue = [];
 let toastBusy = false;
-function toast(who, what, color, icon) {
-  toastQueue.push({ who, what, color, icon });
+function toast(who, what, color, icon, fallback) {
+  toastQueue.push({ who, what, color, icon, fallback });
   if (!toastBusy) nextToast();
 }
 function nextToast() {
@@ -105,8 +105,9 @@ function nextToast() {
   toastBusy = true;
   box.style.setProperty('--c', item.color);
   const text = el('div', 'text');
-  text.append(el('div', 'who', item.who), el('div', 'what', item.what));
-  box.replaceChildren(...(item.icon != null ? [giftIcon(item.icon)] : []), text);
+  text.append(el('div', 'who', item.who));
+  if (item.what) text.append(el('div', 'what', item.what));
+  box.replaceChildren(...(item.icon != null ? [giftIcon(item.icon, item.fallback)] : []), text);
   box.classList.add('show');
   const hold = toastQueue.length > 2 ? 1400 : 2700;
   setTimeout(() => {
@@ -166,8 +167,7 @@ function onMessage(msg) {
       const i = msg.tier - 1;
       effects.push({ ...GIFT_FX[i], tier: i, t0: now() });
       play(`tier${msg.tier}`);
-      const count = msg.repeatCount > 1 ? ` ×${msg.repeatCount}` : '';
-      toast(msg.sender, `${msg.giftName}${count}`, TIER_COLORS[i], config.tiers[i].showcase.icon);
+      toast(msg.sender, msg.repeatCount > 1 ? `×${msg.repeatCount}` : '', TIER_COLORS[i], msg.icon || config.tiers[i].showcase.icon, config.tiers[i].showcase.fallback);
       break;
     }
     case 'stage_up':

@@ -50,7 +50,8 @@ Kendi değerleriniz için aynı yapıda bir `config/local.json` oluşturun; yaln
 | Alan | Anlamı |
 | --- | --- |
 | `tiers[].minCoins / maxCoins` | Kademenin jeton aralığı (hediyenin **birim** değeri). Aralıklar bitişik olmalı, sonuncusu açık uçlu. |
-| `tiers[].showcase` | Ekranda o kademe için gösterilen hediye: `name` (ad) ve `icon` (`rose`, `doughnut`, `confetti`, `galaxy` ya da `overlay/` altına koyduğunuz bir resmin yolu, örn. `gifts/rose.png`). İzleyici kademe adını değil bu hediyeyi görür. |
+| `tiers[].showcase` | Ekranda o kademeyi temsil eden hediye. `giftId` TikTok'taki hediye kimliğidir; ikon TikTok'un kendi hediye listesinden otomatik alınır. `icon` (`rose`, `doughnut`, `confetti`, `galaxy`) yalnızca liste alınamazsa kullanılan yedek çizimdir. Ekranda hediye adı ve kademe adı yazmaz; yalnızca ikon ve etki görünür. |
+| `catalog.language / region` | Hediye listesinin dili ve bölgesi (varsayılan `tr-TR` / `TR`). Liste açılışta ve `refreshHours` saatte bir yenilenir, `data/gift-catalog.json` içinde önbelleğe alınır. |
 | `tiers[].points` | O kademenin büyüme puanı. Combo'da tekrar sayısıyla çarpılır. |
 | `tiers[].manualCoins` | Manuel tetiklemede lider tablosuna ve sezon toplamına yazılan jeton. |
 | `stages[].threshold` | O evreden bir sonrakine geçmek için gereken puan. |
@@ -62,8 +63,8 @@ Kendi değerleriniz için aynı yapıda bir `config/local.json` oluşturun; yaln
 
 ## Kurallar
 
-- **Dört sabit kademe**: 1–9, 10–99, 100–999 ve 1000+ jeton. Ekranda her kademe örnek bir hediyeyle gösterilir
-  (varsayılan: Gül, Donut, Konfeti, Galaksi); aynı jeton aralığındaki diğer hediyeler de aynı etkiyi verir.
+- **Dört sabit kademe**: 1–9, 10–99, 100–999 ve 1000+ jeton. Ekranda her kademe bir hediyenin ikonuyla gösterilir
+  (varsayılan: Gül 1, Donat 30, Konfeti 100, Galaksi 1000 jeton); aynı jeton aralığındaki diğer hediyeler de aynı etkiyi verir.
   En üst kademe, bar boş olsa bile yaratığı anında bir sonraki evreye atlatır.
 - **Tamamen deterministik**: aynı hediye her zaman aynı etkiyi verir. Kodda hiçbir şans unsuru yok; overlay'de
   `Math.random` bile kullanılmaz (ortam hareketi zamanın sabit bir fonksiyonudur).

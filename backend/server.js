@@ -9,6 +9,7 @@ import { Store } from './store.js';
 import { Engine, createInitialState } from './engine.js';
 import { Health } from './health.js';
 import { Connector } from './connector.js';
+import { GiftCatalog } from './catalog.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '127.0.0.1';
@@ -25,19 +26,34 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
 
-const publicConfig = {
-  tiers: config.tiers.map(({ id, label, minCoins, maxCoins, points, instantEvolve, showcase }) => ({
-    id,
-    label,
-    minCoins,
-    maxCoins,
-    points,
-    instantEvolve: Boolean(instantEvolve),
-    // The gift viewers see on screen for this tier (name + icon).
-    showcase: { name: showcase?.name || label, icon: showcase?.icon || '' },
-  })),
-  stages: config.stages.map((s) => s.name),
-};
+const catalog = new GiftCatalog({
+  file: path.join(DATA_DIR, 'gift-catalog.json'),
+  language: config.catalog?.language,
+  region: config.catalog?.region,
+  onUpdate: () => broadcast({ ...fullState(), type: 'init', config: publicConfig() }),
+});
+
+// What the overlay shows for each tier: the real TikTok icon when the
+// catalogue has it, otherwise the built-in drawn icon named in the config.
+function showcaseOf(t) {
+  const known = catalog.get(t.showcase?.giftId);
+  return { name: known?.name || t.showcase?.name || t.label, icon: known?.icon || t.showcase?.icon || '', fallback: t.showcase?.icon || '' };
+}
+
+function publicConfig() {
+  return {
+    tiers: config.tiers.map((t) => ({
+      id: t.id,
+      label: t.label,
+      minCoins: t.minCoins,
+      maxCoins: t.maxCoins,
+      points: t.points,
+      instantEvolve: Boolean(t.instantEvolve),
+      showcase: showcaseOf(t),
+    })),
+    stages: config.stages.map((s) => s.name),
+  };
+}
 
 function overlayCount() {
   let n = 0;
@@ -64,7 +80,9 @@ const health = new Health({
 });
 
 function handleGift(gift) {
-  const result = engine.processGift(gift);
+  // Prefer the icon TikTok sent with the event, then the catalogue's.
+  const known = catalog.get(gift.giftId);
+  const result = engine.processGift({ ...gift, icon: gift.icon || known?.icon || '', giftName: known?.name || gift.giftName });
   if (!result.accepted) return result;
   store.save();
   for (const ev of result.events) broadcast(ev);
@@ -106,7 +124,7 @@ app.use(express.json({ limit: '4kb' }));
 app.get('/', (_req, res) => res.redirect('/panel/'));
 app.use('/overlay', express.static(path.join(ROOT, 'overlay')));
 app.use('/panel', express.static(path.join(ROOT, 'control-panel')));
-app.get('/api/config', (_req, res) => res.json(publicConfig));
+app.get('/api/config', (_req, res) => res.json(publicConfig()));
 app.get('/api/state', (_req, res) => res.json(fullState()));
 app.get('/api/legends', (_req, res) => res.json(state.legends));
 
@@ -119,7 +137,9 @@ app.post('/manual-trigger', requireToken, (req, res) => {
   const result = handleGift({
     id: `manual:${crypto.randomUUID()}`,
     sender: typeof sender === 'string' ? sender : '',
-    giftName: t.showcase?.name || t.label,
+    giftName: showcaseOf(t).name,
+    giftId: t.showcase?.giftId,
+    icon: showcaseOf(t).icon,
     coins: t.manualCoins ?? t.minCoins,
     repeatCount: 1,
     source: 'manual',
@@ -138,7 +158,7 @@ wss.on('connection', (ws, req) => {
   ws.isAlive = true;
   ws.on('pong', () => (ws.isAlive = true));
   ws.on('error', () => {});
-  ws.send(JSON.stringify({ ...fullState(), type: 'init', config: publicConfig }));
+  ws.send(JSON.stringify({ ...fullState(), type: 'init', config: publicConfig() }));
   if (ws.role === 'overlay') {
     health.log('OVERLAY connected');
     broadcast(fullState());
@@ -181,4 +201,6 @@ server.listen(PORT, HOST, () => {
     console.warn('  UYARI: HOST dışa açık ama PANEL_TOKEN boş — manuel tetikleme herkese açık.');
   }
   connector.start().catch((err) => console.error('[connector] start failed:', err));
+  catalog.refresh();
+  setInterval(() => catalog.refresh(), (config.catalog?.refreshHours || 12) * 3600 * 1000).unref();
 });

@@ -20,6 +20,7 @@
   .dim { color: var(--dim); font-size: 14px; }
   .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
   .tiers button { min-height: 110px; border: 0; border-radius: 14px; cursor: pointer; color: #10121a; font-family: inherit; font-weight: 800; font-size: 22px; background: var(--c); display: grid; place-content: center; gap: 4px; transition: transform .08s, filter .15s; }
+  .tiers button img { width: 48px; height: 48px; margin: 0 auto; }
   .tiers button small { font-weight: 600; font-size: 13px; opacity: .8; }
   .tiers button:hover { filter: brightness(1.1); } .tiers button:active { transform: scale(.96); } .tiers button:disabled { filter: grayscale(.8); cursor: wait; }
   input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: #12141e; color: var(--ink); font: inherit; margin-top: 12px; }
@@ -92,6 +93,12 @@ function renderTiers() {
   $('tiers').replaceChildren(...config.tiers.map((t, i) => {
     const b = document.createElement('button');
     b.style.setProperty('--c', COLORS[i]);
+    if (/[./:]/.test(t.showcase.icon)) {
+      const img = document.createElement('img');
+      img.src = t.showcase.icon; img.alt = ''; img.referrerPolicy = 'no-referrer';
+      img.onerror = () => img.remove();
+      b.append(img);
+    }
     b.append(t.showcase.name);
     const small = document.createElement('small');
     small.textContent = `${t.maxCoins == null ? t.minCoins + '+' : t.minCoins + '–' + t.maxCoins} jeton · ${t.instantEvolve ? 'anında evrim' : '+' + t.points + ' büyüme'}`;

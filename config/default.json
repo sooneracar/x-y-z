@@ -8,6 +8,7 @@
       "points": 5,
       "manualCoins": 1,
       "showcase": {
+        "giftId": "5655",
         "name": "Gül",
         "icon": "rose"
       }
@@ -20,7 +21,8 @@
       "points": 25,
       "manualCoins": 30,
       "showcase": {
-        "name": "Donut",
+        "giftId": "5879",
+        "name": "Donat",
         "icon": "doughnut"
       }
     },
@@ -32,6 +34,7 @@
       "points": 120,
       "manualCoins": 100,
       "showcase": {
+        "giftId": "5585",
         "name": "Konfeti",
         "icon": "confetti"
       }
@@ -45,6 +48,7 @@
       "manualCoins": 1000,
       "instantEvolve": true,
       "showcase": {
+        "giftId": "11046",
         "name": "Galaksi",
         "icon": "galaxy"
       }
@@ -85,5 +89,10 @@
   "combo": {
     "multiplyPointsByRepeatCount": true,
     "streakTimeoutSeconds": 8
+  },
+  "catalog": {
+    "language": "tr-TR",
+    "region": "TR",
+    "refreshHours": 12
   }
 }

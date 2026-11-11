@@ -26,9 +26,18 @@ const sfx = Object.fromEntries(
   ]),
 );
 
+// Real TikTok gift icons, if they were downloaded to demo/icons/<giftId>.webp (not committed).
+const iconDir = path.join(ROOT, 'demo', 'icons');
+const icons = Object.fromEntries(
+  (fs.existsSync(iconDir) ? fs.readdirSync(iconDir) : [])
+    .filter((f) => f.endsWith('.webp'))
+    .map((f) => [f.replace('.webp', ''), `data:image/webp;base64,${fs.readFileSync(path.join(iconDir, f)).toString('base64')}`]),
+);
+
 const glue = `
 const __cfg = ${read('config/default.json')};
 window.__xyzSfx = ${JSON.stringify(sfx)};
+const __icons = ${JSON.stringify(icons)};
 {
   const CHAT = [['Elif', 'Çok tatlı bu ya'], ['Mert', 'Evrim geçirsin!'], ['Selin', 'Hadi bir hediye daha'], ['Baran', 'Efsane olmasına az kaldı'], ['Derya', 'Selam herkese']];
   const $ = (id) => document.getElementById(id);
@@ -39,7 +48,7 @@ window.__xyzSfx = ${JSON.stringify(sfx)};
   let chatAt = 0;
   let count = 1;
   const pub = {
-    tiers: __cfg.tiers.map((t) => ({ id: t.id, label: t.label, minCoins: t.minCoins, maxCoins: t.maxCoins, points: t.points, instantEvolve: Boolean(t.instantEvolve), showcase: t.showcase })),
+    tiers: __cfg.tiers.map((t) => ({ id: t.id, label: t.label, minCoins: t.minCoins, maxCoins: t.maxCoins, points: t.points, instantEvolve: Boolean(t.instantEvolve), showcase: { name: t.showcase.name, icon: __icons[t.showcase.giftId] || t.showcase.icon, fallback: t.showcase.icon } })),
     stages: __cfg.stages.map((s) => s.name),
   };
   const snap = () => ({ type: 'state', state: engine.snapshot() });
@@ -61,13 +70,12 @@ window.__xyzSfx = ${JSON.stringify(sfx)};
     b.type = 'button';
     b.className = 'tier';
     b.style.setProperty('--c', 'var(--t' + (i + 1) + ')');
-    const name = document.createElement('strong');
-    name.textContent = t.showcase.name;
+    const name = giftIcon(pub.tiers[i].showcase.icon, t.showcase.icon);
     const fx = document.createElement('span');
     fx.textContent = (t.maxCoins == null ? fmt.format(t.minCoins) + '+' : t.minCoins + '–' + t.maxCoins) + ' jeton · ' + (t.instantEvolve ? 'anında evrim' : '+' + t.points + ' büyüme');
     b.append(name, fx);
     b.addEventListener('click', () => {
-      const r = engine.processGift({ id: 'demo:' + seq++, sender: $('d-sender').value, giftName: t.showcase.name, coins: t.manualCoins, repeatCount: count, source: 'demo' });
+      const r = engine.processGift({ id: 'demo:' + seq++, sender: $('d-sender').value, giftName: t.showcase.name, icon: pub.tiers[i].showcase.icon, coins: t.manualCoins, repeatCount: count, source: 'demo' });
       r.events.forEach(send);
       send(snap());
       summary();
@@ -126,7 +134,7 @@ body { background: var(--page); color: var(--text); font-family: var(--body); fo
 .desk h2 { margin: 0; font: 600 12px/1.3 var(--display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 #d-tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .tier { min-height: 76px; border: 0; border-radius: 12px; background: var(--c); color: var(--on-tier); cursor: pointer; display: grid; place-content: center; gap: 2px; padding: 10px; font-family: var(--body); text-align: center; transition: transform 0.08s; }
-.tier strong { font: 700 19px/1.2 var(--display); }
+.tier .gift-icon { width: 44px; height: 44px; margin: 0 auto; }
 .tier span { font-size: 12px; font-weight: 500; }
 .tier:active { transform: scale(0.96); }
 .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }

@@ -25,11 +25,11 @@ body.scene-off #bg { display: none; }
 
 #logo { position: absolute; top: 1.5rem; left: 1.75rem; font-size: 1.5rem; font-weight: 800; letter-spacing: 0.06em; opacity: 0.9; font-family: "Consolas", "Courier New", monospace; }
 
-/* Gift legend: always visible, one line per gift — icon, name, effect. */
+/* Gift legend: always visible, one line per gift — its icon and its effect, no words. */
 #legend { position: absolute; left: 1.75rem; top: 50%; transform: translateY(-50%); padding: 0.5rem 1rem; border-radius: 1rem; background: var(--glass); }
-#legend li { list-style: none; display: flex; align-items: center; gap: 0.7rem; font-size: 1.3rem; font-weight: 600; white-space: nowrap; padding: 0.4rem 0; }
-#legend .name { min-width: 7rem; }
-#legend .fx { margin-left: auto; padding-left: 1rem; color: var(--c); font-weight: 800; font-variant-numeric: tabular-nums; }
+#legend li { list-style: none; display: flex; align-items: center; gap: 0.9rem; font-size: 1.6rem; white-space: nowrap; padding: 0.35rem 0; }
+#legend .gift-icon { width: 3.2rem; height: 3.2rem; }
+#legend .fx { margin-left: auto; color: var(--c); font-weight: 800; font-variant-numeric: tabular-nums; }
 
 #board { position: absolute; right: 1.75rem; top: 1.5rem; width: 18rem; padding: 0.7rem 1rem; border-radius: 1rem; background: var(--glass); transition: box-shadow 0.3s, transform 0.3s; }
 #board.flash { box-shadow: 0 0 2rem var(--accent); transform: scale(1.05); }
@@ -43,10 +43,10 @@ body.scene-off #bg { display: none; }
 
 #toast { position: absolute; top: 5rem; left: 50%; transform: translate(-50%, -1.5rem) scale(0.9); opacity: 0; transition: opacity 0.25s, transform 0.25s; display: flex; align-items: center; gap: 1.2rem; padding: 0.8rem 2.2rem 0.9rem 1.6rem; border-radius: 1.4rem; background: rgba(10, 12, 20, 0.72); border: 0.18rem solid var(--c, var(--accent)); box-shadow: 0 0 2.4rem color-mix(in srgb, var(--c, var(--accent)) 55%, transparent); max-width: 56rem; }
 #toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
-#toast .gift-icon { width: 5rem; height: 5rem; }
+#toast .gift-icon { width: 5.5rem; height: 5.5rem; }
 #toast .text { min-width: 0; }
 #toast .who { font-size: 2.9rem; font-weight: 800; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#toast .what { font-size: 1.6rem; color: var(--c, var(--accent)); font-weight: 700; }
+#toast .what { font-size: 2rem; color: var(--c, var(--accent)); font-weight: 700; }
 
 #growth { position: absolute; left: 50%; bottom: 1.6rem; transform: translateX(-50%); width: 44rem; }
 #growth .meta { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.35rem; font-weight: 700; }
