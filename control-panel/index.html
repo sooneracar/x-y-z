@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[X~Y~Z] Kontrol Paneli</title>
+<style>
+  :root { color-scheme: dark; --bg: #11131c; --card: #1b1e2b; --line: #2e3348; --ink: #eef0f7; --dim: #9aa1b8; --ok: #37d67a; --bad: #ff5a5f; --warn: #ffb84d; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+  h1 { margin: 0; font: 800 24px Consolas, "Courier New", monospace; }
+  h2 { margin: 0 0 10px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; font-weight: 700; border: 2px solid currentColor; }
+  .pill::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: currentColor; }
+  .pill.connected { color: var(--ok); } .pill.disconnected { color: var(--bad); } .pill.connecting, .pill.disabled { color: var(--warn); } .pill.offline { color: var(--bad); }
+  .status-line { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+  .dim { color: var(--dim); font-size: 14px; }
+  .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .tiers button { min-height: 110px; border: 0; border-radius: 14px; cursor: pointer; color: #10121a; font-family: inherit; font-weight: 800; font-size: 22px; background: var(--c); display: grid; place-content: center; gap: 4px; transition: transform .08s, filter .15s; }
+  .tiers button small { font-weight: 600; font-size: 13px; opacity: .8; }
+  .tiers button:hover { filter: brightness(1.1); } .tiers button:active { transform: scale(.96); } .tiers button:disabled { filter: grayscale(.8); cursor: wait; }
+  input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: #12141e; color: var(--ink); font: inherit; margin-top: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .stat b { display: block; font-size: 22px; } .stat span { color: var(--dim); font-size: 13px; }
+  .bar { height: 14px; border-radius: 7px; background: #2a2e42; overflow: hidden; margin-top: 12px; }
+  .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ff8c28, #ffd24a); transition: width .4s; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; } th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); } th { color: var(--dim); font-weight: 600; }
+  #msg { min-height: 20px; margin-top: 10px; font-size: 14px; }
+  #msg.err { color: var(--bad); } #msg.ok { color: var(--ok); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>[X~Y~Z] <span class="dim">Kontrol Paneli</span></h1>
+    <div class="status-line">
+      <span id="conn" class="pill offline">Sunucuya bağlanılıyor…</span>
+      <span id="conn-detail" class="dim"></span>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>Manuel tetikleme</h2>
+    <div class="tiers" id="tiers"></div>
+    <input id="sender" maxlength="40" placeholder="Gönderen adı (boş bırakılırsa: Gizli Destekçi)">
+    <div id="msg"></div>
+  </section>
+
+  <section class="card">
+    <h2>Özet</h2>
+    <div class="grid">
+      <div class="stat"><b id="s-season">—</b><span>Aktif sezon / unsur</span></div>
+      <div class="stat"><b id="s-stage">—</b><span>Evre</span></div>
+      <div class="stat"><b id="s-pct">—</b><span id="s-pct-label">Büyüme barı</span></div>
+      <div class="stat"><b id="s-total">—</b><span>Sezon toplamı (jeton)</span></div>
+      <div class="stat"><b id="s-overlay">—</b><span>Bağlı overlay</span></div>
+    </div>
+    <div class="bar"><i id="s-bar"></i></div>
+    <p class="dim" id="s-top"></p>
+  </section>
+
+  <section class="card">
+    <h2>Kesinti geçmişi</h2>
+    <table><thead><tr><th>Koptu</th><th>Geri geldi</th><th>Süre</th><th>Neden</th></tr></thead><tbody id="outages"></tbody></table>
+  </section>
+
+  <section class="card">
+    <h2>Efsaneler Listesi</h2>
+    <table><thead><tr><th>Sezon</th><th>Yaratık</th><th>Toplam</th><th>İlk üç</th><th>Kapanış</th></tr></thead><tbody id="legends"></tbody></table>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const token = new URLSearchParams(location.search).get('token') || '';
+const COLORS = ['#7fd3ff', '#7dffb0', '#c9a2ff', '#ffd24a'];
+const STATUS = { connected: 'Bağlı', disconnected: 'Koptu', connecting: 'Bağlanıyor…', disabled: 'Connector kapalı' };
+const fmt = new Intl.NumberFormat('tr-TR');
+const time = (ms) => new Date(ms).toLocaleString('tr-TR');
+function dur(ms) {
+  const s = Math.round(ms / 1000);
+  return s < 60 ? `${s} sn` : s < 3600 ? `${Math.floor(s / 60)} dk ${s % 60} sn` : `${Math.floor(s / 3600)} sa ${Math.floor((s % 3600) / 60)} dk`;
+}
+function cell(text) { const td = document.createElement('td'); td.textContent = text; return td; }
+function row(cells) { const tr = document.createElement('tr'); tr.append(...cells.map(cell)); return tr; }
+function note(text, cls) { $('msg').textContent = text; $('msg').className = cls || ''; }
+
+let config = null;
+function renderTiers() {
+  $('tiers').replaceChildren(...config.tiers.map((t, i) => {
+    const b = document.createElement('button');
+    b.style.setProperty('--c', COLORS[i]);
+    b.append(t.label);
+    const small = document.createElement('small');
+    small.textContent = t.instantEvolve ? 'Anında evrim' : `+${t.points} büyüme`;
+    b.append(small);
+    b.onclick = () => trigger(t, b);
+    return b;
+  }));
+}
+
+async function trigger(t, button) {
+  button.disabled = true;
+  try {
+    const res = await fetch('/manual-trigger', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-panel-token': token },
+      body: JSON.stringify({ tier: t.id, sender: $('sender').value }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body.ok) throw new Error(body.error || `Sunucu ${res.status} döndürdü`);
+    note(`${t.label} tetiklendi.`, 'ok');
+  } catch (err) {
+    note(`Tetiklenemedi: ${err.message}`, 'err');
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function render(msg) {
+  const s = msg.state, c = msg.connection;
+  $('conn').className = `pill ${c.status}`;
+  $('conn').textContent = STATUS[c.status] || c.status;
+  $('conn-detail').textContent = `${c.detail || ''} · ${time(c.since)} itibarıyla`;
+  $('s-season').textContent = `${s.season.number}. sezon · ${s.season.creature} (${s.season.element})`;
+  $('s-stage').textContent = `${s.stageName} (${s.stage + 1}/${s.stageCount})`;
+  $('s-pct').textContent = `%${Math.floor(s.progress * 100)}`;
+  $('s-pct-label').textContent = s.isFinalStage ? 'Sezon finaline ilerleme' : `Büyüme barı (${Math.floor(s.growth)}/${s.threshold})`;
+  $('s-total').textContent = `${fmt.format(s.seasonTotal)} / ${fmt.format(s.closeThreshold)}`;
+  $('s-overlay').textContent = msg.overlays > 0 ? `${msg.overlays} bağlı` : 'Bağlı değil';
+  $('s-overlay').style.color = msg.overlays > 0 ? 'var(--ok)' : 'var(--bad)';
+  $('s-bar').style.width = `${s.progress * 100}%`;
+  $('s-top').textContent = s.top.length ? 'Liderler: ' + s.top.map((e, i) => `${i + 1}. ${e.name} (${fmt.format(e.coins)})`).join('  ·  ') : 'Bu sezon henüz hediye yok.';
+  $('outages').replaceChildren(...(c.outages.length
+    ? c.outages.map((o) => row([time(o.downAt), o.upAt ? time(o.upAt) : 'sürüyor', dur((o.upAt || Date.now()) - o.downAt), o.reason || '']))
+    : [row(['Kayıtlı kesinti yok.', '', '', ''])]));
+  $('legends').replaceChildren(...(s.legends.length
+    ? s.legends.slice().reverse().map((l) => row([`${l.seasonNumber}`, `${l.creature} (${l.element})`, fmt.format(l.totalCoins), l.top.slice(0, 3).map((e) => e.name).join(', '), time(l.closedAt)]))
+    : [row(['Henüz tamamlanan sezon yok.', '', '', '', ''])]));
+}
+
+function connect() {
+  const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws?role=panel&token=${encodeURIComponent(token)}`);
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'init') { config = msg.config; renderTiers(); }
+    if (msg.type === 'init' || msg.type === 'state') render(msg);
+  };
+  ws.onclose = (e) => {
+    $('conn').className = 'pill offline';
+    $('conn').textContent = e.code === 4401 ? 'Yetkisiz' : 'Sunucu bağlantısı yok';
+    $('conn-detail').textContent = e.code === 4401 ? 'Adrese ?token=... ekleyin.' : 'Yeniden deneniyor…';
+    if (e.code !== 4401) setTimeout(connect, 2000);
+  };
+  ws.onerror = () => ws.close();
+}
+connect();
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+!.env.example
+# persistent runtime state and logs
+data/
+logs/
+*.log
+.DS_Store

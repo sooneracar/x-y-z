@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[X~Y~Z] Overlay</title>
+<link rel="stylesheet" href="overlay.css">
+</head>
+<body>
+<!-- Layer 1: habitat scene -->
+<canvas id="bg"></canvas>
+<!-- Layer 2: creature + animations -->
+<canvas id="mid"></canvas>
+<!-- Layer 3: UI -->
+<div id="ui">
+  <div id="logo">[X~Y~Z]</div>
+
+  <aside id="legend" class="panel">
+    <h2>Hediye Etkileri</h2>
+    <ul id="legend-list"></ul>
+  </aside>
+
+  <aside id="board" class="panel">
+    <h2>Sezon Liderleri</h2>
+    <ol id="board-list"></ol>
+  </aside>
+
+  <div id="toast" aria-live="off"></div>
+
+  <div id="growth" class="panel">
+    <div class="meta">
+      <span id="creature-name"></span>
+      <span id="stage-name"></span>
+    </div>
+    <div class="bar"><i id="bar-fill"></i><div id="stage-dots"></div></div>
+    <div class="meta small">
+      <span id="growth-label"></span>
+      <span id="growth-pct"></span>
+    </div>
+  </div>
+
+  <div id="chat"></div>
+  <div id="finale"></div>
+</div>
+<script type="module" src="overlay.js"></script>
+</body>
+</html>

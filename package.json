@@ -1,0 +1,27 @@
+{
+  "name": "x-y-z",
+  "version": "1.0.0",
+  "description": "[X~Y~Z] — TikTok LIVE gift-powered evolving creature overlay",
+  "main": "backend/server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "node backend/server.js",
+    "test": "node --test",
+    "sfx": "node tools/generate-sfx.js"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "tiktok-live-connector": "^2.5.0",
+    "ws": "^8.22.2"
+  },
+  "displayName": "[X~Y~Z]",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}
